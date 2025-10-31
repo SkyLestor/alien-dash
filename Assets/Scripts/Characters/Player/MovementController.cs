@@ -1,6 +1,5 @@
-using Scripts.Input;
 using UnityEngine;
-using Zenject;
+using UnityEngine.InputSystem;
 
 namespace Scripts.Characters.Player
 {
@@ -15,17 +14,9 @@ namespace Scripts.Characters.Player
         private Vector2 _dashDirection;
         private float _dashSpeed;
 
-        private IInputManager _inputManager;
-
         private bool _isDashing;
+        private Vector2 _moveDirection;
         private Rigidbody2D _rigidbody2D;
-
-
-        [Inject]
-        public void Construct(IInputManager inputManager)
-        {
-            _inputManager = inputManager;
-        }
 
         private void Awake()
         {
@@ -44,11 +35,12 @@ namespace Scripts.Characters.Player
             }
         }
 
+
         private void FixedUpdate()
         {
             if (!_isDashing)
             {
-                _rigidbody2D.linearVelocity = _inputManager.GetMovementVectorNormalized() * _speed;
+                _rigidbody2D.linearVelocity = _moveDirection * _speed;
             }
             else
             {
@@ -56,20 +48,15 @@ namespace Scripts.Characters.Player
             }
         }
 
-        private void OnEnable()
+        public void OnMove(InputAction.CallbackContext context)
         {
-            _inputManager.DashPerformed += InputManagerOnDashPerformed;
+            _moveDirection = context.ReadValue<Vector2>();
         }
 
-        private void OnDisable()
+        public void OnDash(InputAction.CallbackContext context)
         {
-            _inputManager.DashPerformed += InputManagerOnDashPerformed;
-        }
-
-        private void InputManagerOnDashPerformed()
-        {
-            _dashDirection = _inputManager.GetMovementVectorNormalized() != Vector2.zero
-                ? _inputManager.GetMovementVectorNormalized()
+            _dashDirection = _moveDirection != Vector2.zero
+                ? _moveDirection
                 : new Vector2(transform.right.x, transform.right.y).normalized;
             _dashSpeed = InitialDashSpeed;
             _isDashing = true;
