@@ -2,7 +2,7 @@ using Scripts.Input;
 using UnityEngine;
 using Zenject;
 
-namespace Scripts.Player
+namespace Scripts.Characters.Player
 {
     [RequireComponent(typeof(Rigidbody2D))]
     public class MovementController : MonoBehaviour
