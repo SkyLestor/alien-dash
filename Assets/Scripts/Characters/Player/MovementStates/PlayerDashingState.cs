@@ -17,6 +17,7 @@ namespace Scripts.Characters.Player.MovementStates
             _dashDirection = Controller.MoveDirection != Vector2.zero
                 ? Controller.MoveDirection
                 : new Vector2(Controller.transform.right.x, Controller.transform.right.y);
+            Controller.TrailRenderer.emitting = true;
         }
 
         public override void Update()
@@ -31,6 +32,11 @@ namespace Scripts.Characters.Player.MovementStates
         public override void FixedUpdate()
         {
             Controller.Rigidbody.linearVelocity = _dashDirection * _dashSpeed;
+        }
+
+        public override void Exit()
+        {
+            Controller.TrailRenderer.emitting = false;
         }
     }
 }

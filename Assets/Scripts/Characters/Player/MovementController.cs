@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 namespace Scripts.Characters.Player
 {
-    [RequireComponent(typeof(Rigidbody2D))]
+    [RequireComponent(typeof(Rigidbody2D), typeof(TrailRenderer))]
     public class MovementController : MonoBehaviour
     {
         private PlayerMovementState _currentState;
@@ -15,12 +15,13 @@ namespace Scripts.Characters.Player
         public float InitialDashSpeed => 50f;
         public float DashSpeedDecreaseMultiplayer => 120f;
         public Rigidbody2D Rigidbody { get; private set; }
+        public TrailRenderer TrailRenderer { get; private set; }
         public PlayerWalkingState WalkingState { get; private set; }
         public PlayerDashingState DashingState { get; private set; }
-
         private void Awake()
         {
             Rigidbody = GetComponent<Rigidbody2D>();
+            TrailRenderer = GetComponent<TrailRenderer>();
             WalkingState = new PlayerWalkingState(this);
             DashingState = new PlayerDashingState(this);
             _currentState = WalkingState;
