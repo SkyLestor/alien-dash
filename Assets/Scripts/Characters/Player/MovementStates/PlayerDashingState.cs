@@ -4,6 +4,7 @@ namespace Scripts.Characters.Player.MovementStates
 {
     public class PlayerDashingState : PlayerMovementState
     {
+        private static readonly int IsDashing = Animator.StringToHash("IsDashing");
         private Vector2 _dashDirection;
         private float _dashSpeed;
 
@@ -13,6 +14,8 @@ namespace Scripts.Characters.Player.MovementStates
 
         public override void Enter()
         {
+            Controller.Animator.SetBool(IsDashing, true);
+
             _dashSpeed = Controller.InitialDashSpeed;
             _dashDirection = Controller.MoveDirection != Vector2.zero
                 ? Controller.MoveDirection
@@ -23,9 +26,13 @@ namespace Scripts.Characters.Player.MovementStates
         public override void Update()
         {
             _dashSpeed -= Time.deltaTime * Controller.DashSpeedDecreaseMultiplayer;
-            if (_dashSpeed <= Controller.Speed)
+            if (_dashSpeed <= Controller.Speed && Controller.MoveDirection != Vector2.zero)
             {
                 Controller.TransitionToState(Controller.WalkingState);
+            }
+            else if (_dashSpeed <= 0)
+            {
+                Controller.TransitionToState(Controller.IdleState);
             }
         }
 
@@ -36,6 +43,7 @@ namespace Scripts.Characters.Player.MovementStates
 
         public override void Exit()
         {
+            Controller.Animator.SetBool(IsDashing, false);
             Controller.TrailRenderer.emitting = false;
         }
     }

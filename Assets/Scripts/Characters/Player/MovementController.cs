@@ -4,9 +4,12 @@ using UnityEngine.InputSystem;
 
 namespace Scripts.Characters.Player
 {
-    [RequireComponent(typeof(Rigidbody2D), typeof(TrailRenderer))]
+    [RequireComponent(typeof(Rigidbody2D))]
     public class MovementController : MonoBehaviour
     {
+        [SerializeField] private TrailRenderer _trailRenderer;
+        [SerializeField] private Animator _animator;
+
         private PlayerMovementState _currentState;
 
         // properties for states to use
@@ -15,15 +18,18 @@ namespace Scripts.Characters.Player
         public float InitialDashSpeed => 50f;
         public float DashSpeedDecreaseMultiplayer => 120f;
         public Rigidbody2D Rigidbody { get; private set; }
-        public TrailRenderer TrailRenderer { get; private set; }
+        public TrailRenderer TrailRenderer => _trailRenderer;
+        public Animator Animator => _animator;
         public PlayerWalkingState WalkingState { get; private set; }
         public PlayerDashingState DashingState { get; private set; }
+        public PlayerIdleState IdleState { get; private set; }
+
         private void Awake()
         {
             Rigidbody = GetComponent<Rigidbody2D>();
-            TrailRenderer = GetComponent<TrailRenderer>();
             WalkingState = new PlayerWalkingState(this);
             DashingState = new PlayerDashingState(this);
+            IdleState = new PlayerIdleState(this);
             _currentState = WalkingState;
         }
 
