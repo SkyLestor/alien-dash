@@ -8,9 +8,9 @@ namespace Scripts.Characters.Player
     public class MovementController : MonoBehaviour
     {
         [SerializeField] private TrailRenderer _trailRenderer;
-        [SerializeField] private Animator _animator;
+        public PlayerController Controller { get; private set; }
 
-        private PlayerMovementState _currentState;
+        public PlayerMovementState CurrentState { get; private set; }
 
         // properties for states to use
         public Vector2 MoveDirection { get; private set; }
@@ -19,7 +19,6 @@ namespace Scripts.Characters.Player
         public float DashSpeedDecreaseMultiplayer => 120f;
         public Rigidbody2D Rigidbody { get; private set; }
         public TrailRenderer TrailRenderer => _trailRenderer;
-        public Animator Animator => _animator;
         public PlayerWalkingState WalkingState { get; private set; }
         public PlayerDashingState DashingState { get; private set; }
         public PlayerIdleState IdleState { get; private set; }
@@ -27,20 +26,21 @@ namespace Scripts.Characters.Player
         private void Awake()
         {
             Rigidbody = GetComponent<Rigidbody2D>();
+            Controller = GetComponent<PlayerController>();
             WalkingState = new PlayerWalkingState(this);
             DashingState = new PlayerDashingState(this);
             IdleState = new PlayerIdleState(this);
-            _currentState = WalkingState;
+            CurrentState = WalkingState;
         }
 
         private void Update()
         {
-            _currentState?.Update();
+            CurrentState?.Update();
         }
 
         private void FixedUpdate()
         {
-            _currentState?.FixedUpdate();
+            CurrentState?.FixedUpdate();
         }
 
         public void OnMove(InputAction.CallbackContext context)
@@ -50,13 +50,13 @@ namespace Scripts.Characters.Player
 
         public void OnDash(InputAction.CallbackContext context)
         {
-            _currentState?.OnDash();
+            CurrentState?.OnDash();
         }
 
         public void TransitionToState(PlayerMovementState state)
         {
-            _currentState?.Exit();
-            _currentState = state;
+            CurrentState?.Exit();
+            CurrentState = state;
             state?.Enter();
         }
     }

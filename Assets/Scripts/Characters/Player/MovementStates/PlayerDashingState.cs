@@ -4,7 +4,6 @@ namespace Scripts.Characters.Player.MovementStates
 {
     public class PlayerDashingState : PlayerMovementState
     {
-        private static readonly int IsDashing = Animator.StringToHash("IsDashing");
         private Vector2 _dashDirection;
         private float _dashSpeed;
 
@@ -14,8 +13,7 @@ namespace Scripts.Characters.Player.MovementStates
 
         public override void Enter()
         {
-            Controller.Animator.SetBool(IsDashing, true);
-
+            Controller.Controller.AnimationsController.StartDashAnimation();
             _dashSpeed = Controller.InitialDashSpeed;
             _dashDirection = Controller.MoveDirection != Vector2.zero
                 ? Controller.MoveDirection
@@ -43,7 +41,7 @@ namespace Scripts.Characters.Player.MovementStates
 
         public override void Exit()
         {
-            Controller.Animator.SetBool(IsDashing, false);
+            Controller.Controller.AnimationsController.FinishDashAnimation();
             Controller.TrailRenderer.emitting = false;
         }
     }
