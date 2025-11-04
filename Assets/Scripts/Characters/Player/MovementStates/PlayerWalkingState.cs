@@ -4,17 +4,15 @@ namespace Scripts.Characters.Player.MovementStates
 {
     public class PlayerWalkingState : PlayerMovementState
     {
-        private static readonly int IsRunning = Animator.StringToHash("IsRunning");
+        private readonly Vector3 _flippedRotation = new(0, 180, 0);
 
-        
-        private Vector3 _flippedRotation = new Vector3(0, 180, 0);
         public PlayerWalkingState(MovementController controller) : base(controller)
         {
         }
 
         public override void Enter()
         {
-            Controller.Animator.SetBool(IsRunning, true);
+            Controller.Controller.AnimationsController.PlayRunAnimation();
         }
 
         public override void Update()
@@ -35,6 +33,7 @@ namespace Scripts.Characters.Player.MovementStates
             {
                 Controller.transform.eulerAngles = Vector3.zero;
             }
+
             Controller.Rigidbody.linearVelocity = Controller.MoveDirection * Controller.Speed;
         }
 

@@ -4,8 +4,6 @@ namespace Scripts.Characters.Player.MovementStates
 {
     public class PlayerIdleState : PlayerMovementState
     {
-        private static readonly int IsRunning = Animator.StringToHash("IsRunning");
-
         public PlayerIdleState(MovementController controller) : base(controller)
         {
         }
@@ -13,8 +11,8 @@ namespace Scripts.Characters.Player.MovementStates
 
         public override void Enter()
         {
-            Controller.Animator.SetBool(IsRunning, false);
             Controller.Rigidbody.linearVelocity = Vector2.zero;
+            Controller.Controller.AnimationsController.PlayIdleAnimation();
         }
 
         public override void Update()
