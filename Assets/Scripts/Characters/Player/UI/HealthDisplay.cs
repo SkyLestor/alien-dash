@@ -21,7 +21,7 @@ namespace Scripts.Characters.Player.UI
 
         private void Update()
         {
-            _healthBar.fillAmount = 1 - (float)_playerController.MaxHealth / _playerController.CurrentHeath;
+            _healthBar.fillAmount = (float)_playerController.CurrentHeath / _playerController.MaxHealth;
             _healthText.text = $"{_playerController.CurrentHeath} / {_playerController.MaxHealth}";
         }
     }
