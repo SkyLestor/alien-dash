@@ -1,4 +1,5 @@
 using Scripts.Characters.Enemy;
+using Scripts.GameEventBus;
 using UnityEngine;
 using Zenject;
 
@@ -65,6 +66,11 @@ namespace Scripts.Characters.Player
         {
             _playerStats.CurrentHealth = Mathf.Clamp(CurrentHeath - damage, 0, MaxHealth);
             AnimationsController.PlayDamagedAnimation();
+            EventBus.Raise(new PlayerDamagedEvent { Player = this });
+            if (_playerStats.CurrentHealth == 0)
+            {
+                Destroy(gameObject);
+            }
         }
 
 

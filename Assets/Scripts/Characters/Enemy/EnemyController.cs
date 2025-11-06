@@ -1,4 +1,6 @@
 using DG.Tweening;
+using Scripts.GameEventBus;
+using Scripts.RoundManagement;
 using UnityEngine;
 using Zenject;
 
@@ -49,11 +51,13 @@ namespace Scripts.Characters.Enemy
         private void OnEnable()
         {
             _aiCoroutine = StartCoroutine(_aiStrategy.InitializeMovementStrategy(this));
+            EventBus.Subscribe<GamePhaseChangedEvent>(OnGamePhaseChanged);
         }
 
         private void OnDisable()
         {
             StopAiHandler();
+            EventBus.Unsubscribe<GamePhaseChangedEvent>(OnGamePhaseChanged);
         }
 
         public int CurrentHeath { get; private set; }
@@ -74,6 +78,14 @@ namespace Scripts.Characters.Enemy
         }
 
         public int Damage => Config.Damage;
+
+        private void OnGamePhaseChanged(GamePhaseChangedEvent eventData)
+        {
+            if (eventData.CurrentPhase is GamePhase.Finish or GamePhase.Upgrade)
+            {
+                Destroy(gameObject);
+            }
+        }
 
         private void StopAiHandler()
         {

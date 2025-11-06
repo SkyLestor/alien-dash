@@ -1,6 +1,7 @@
 using Scripts.Characters.Enemy;
 using Scripts.Characters.Enemy.AiStrategies;
 using Scripts.Characters.Player;
+using Scripts.RoundManagement;
 using UnityEngine;
 using Zenject;
 
@@ -12,6 +13,8 @@ namespace Scripts.Installers
 
         public override void InstallBindings()
         {
+            Container.Bind<IRoundManager>().To<RoundManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+
             Container.Bind<PlayerRegistry>().AsSingle().NonLazy();
             Container.Bind<PlayerController>().FromComponentInNewPrefab(_playerPrefab).AsSingle().NonLazy();
 
