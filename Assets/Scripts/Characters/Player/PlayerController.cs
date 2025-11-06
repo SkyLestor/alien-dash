@@ -1,5 +1,6 @@
 using Scripts.Characters.Enemy;
 using UnityEngine;
+using Zenject;
 
 namespace Scripts.Characters.Player
 {
@@ -7,16 +8,35 @@ namespace Scripts.Characters.Player
     public class PlayerController : MonoBehaviour, IDamageable
     {
         [SerializeField] private Animator _animator;
+
         private MovementController _movementController;
+
+        private PlayerRegistry _playerRegistry;
         private PlayerStats _playerStats;
 
         public IAnimationsController AnimationsController { get; private set; }
+
+        [Inject]
+        public void Construct(PlayerRegistry playerRegistry)
+        {
+            _playerRegistry = playerRegistry;
+        }
 
         private void Awake()
         {
             _playerStats = new PlayerStats(100, 10);
             AnimationsController = new PlayerAnimationsController(_animator);
             _movementController = GetComponent<MovementController>();
+        }
+
+        private void OnEnable()
+        {
+            _playerRegistry.Register(this);
+        }
+
+        private void OnDisable()
+        {
+            _playerRegistry.Unregister(this);
         }
 
         private void OnTriggerEnter2D(Collider2D other)
