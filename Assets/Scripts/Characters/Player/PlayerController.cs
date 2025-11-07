@@ -13,7 +13,7 @@ namespace Scripts.Characters.Player
         private MovementController _movementController;
 
         private PlayerRegistry _playerRegistry;
-        private PlayerStats _playerStats;
+        public PlayerStats Stats { get; private set; }
 
         public IAnimationsController AnimationsController { get; private set; }
 
@@ -25,7 +25,7 @@ namespace Scripts.Characters.Player
 
         private void Awake()
         {
-            _playerStats = new PlayerStats(100, 10);
+            Stats = new PlayerStats(100, 10, 3, 1.2f);
             AnimationsController = new PlayerAnimationsController(_animator);
             _movementController = GetComponent<MovementController>();
         }
@@ -49,7 +49,7 @@ namespace Scripts.Characters.Player
 
             if (_movementController.CurrentState == _movementController.DashingState)
             {
-                enemy.TakeDamage(_playerStats.Damage);
+                enemy.TakeDamage(Stats.Damage);
             }
             else
             {
@@ -58,16 +58,16 @@ namespace Scripts.Characters.Player
         }
 
 
-        public int CurrentHeath => _playerStats.CurrentHealth;
+        public int CurrentHeath => Stats.CurrentHealth;
 
-        public int MaxHealth => _playerStats.MaxHealth;
+        public int MaxHealth => Stats.MaxHealth;
 
         public void TakeDamage(int damage)
         {
-            _playerStats.CurrentHealth = Mathf.Clamp(CurrentHeath - damage, 0, MaxHealth);
+            Stats.CurrentHealth = Mathf.Clamp(CurrentHeath - damage, 0, MaxHealth);
             AnimationsController.PlayDamagedAnimation();
             EventBus.Raise(new PlayerDamagedEvent { Player = this });
-            if (_playerStats.CurrentHealth == 0)
+            if (Stats.CurrentHealth == 0)
             {
                 Destroy(gameObject);
             }
@@ -78,14 +78,17 @@ namespace Scripts.Characters.Player
         {
             public int CurrentHealth;
             public int Damage;
-
+            public int DashCharges;
+            public float DashesCooldown;
             public int MaxHealth;
 
-            public PlayerStats(int initialHealth, int initialDamage)
+            public PlayerStats(int initialHealth, int initialDamage, int dashCharges, float dashesCooldown)
             {
                 MaxHealth = initialHealth;
                 CurrentHealth = initialHealth;
                 Damage = initialDamage;
+                DashCharges = dashCharges;
+                DashesCooldown = dashesCooldown;
             }
         }
     }
