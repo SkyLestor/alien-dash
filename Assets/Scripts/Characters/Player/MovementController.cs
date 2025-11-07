@@ -1,3 +1,4 @@
+using System.Collections;
 using Scripts.Characters.Player.MovementStates;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,6 +9,12 @@ namespace Scripts.Characters.Player
     public class MovementController : MonoBehaviour
     {
         [SerializeField] private TrailRenderer _trailRenderer;
+
+
+        // Dash Recovery fields
+        private int _currentDashCharges;
+        private Coroutine _dashRecoveryCoroutine;
+        private float _dashRecoveryProgress;
         public PlayerController Controller { get; private set; }
 
         public PlayerMovementState CurrentState { get; private set; }
@@ -33,6 +40,11 @@ namespace Scripts.Characters.Player
             CurrentState = WalkingState;
         }
 
+        private void Start()
+        {
+            _currentDashCharges = Controller.Stats.DashCharges;
+        }
+
         private void Update()
         {
             CurrentState?.Update();
@@ -50,7 +62,34 @@ namespace Scripts.Characters.Player
 
         public void OnDash(InputAction.CallbackContext context)
         {
+            if (!context.performed || _currentDashCharges <= 0)
+            {
+                return;
+            }
+
+            _currentDashCharges--;
             CurrentState?.OnDash();
+            _dashRecoveryCoroutine ??= StartCoroutine(DashChargeRecovery());
+        }
+
+        private IEnumerator DashChargeRecovery()
+        {
+            while (_dashRecoveryProgress < Controller.Stats.DashesCooldown)
+            {
+                _dashRecoveryProgress += Time.deltaTime;
+                yield return null;
+            }
+
+            _currentDashCharges++;
+            _dashRecoveryProgress = 0;
+            if (_currentDashCharges < Controller.Stats.DashCharges)
+            {
+                _dashRecoveryCoroutine = StartCoroutine(DashChargeRecovery());
+            }
+            else
+            {
+                _dashRecoveryCoroutine = null;
+            }
         }
 
         public void TransitionToState(PlayerMovementState state)
