@@ -10,9 +10,11 @@ namespace Scripts.Installers
     public class LevelSceneInstaller : MonoInstaller
     {
         [SerializeField] private GameObject _playerPrefab;
+        [SerializeField] private EnemiesContainerSo _enemiesContainerSo;
 
         public override void InstallBindings()
         {
+            Container.Bind<EnemiesContainerSo>().FromInstance(_enemiesContainerSo).AsSingle().NonLazy();
             Container.Bind<IRoundManager>().To<RoundManager>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
 
             Container.Bind<PlayerRegistry>().AsSingle().NonLazy();
@@ -22,6 +24,24 @@ namespace Scripts.Installers
 
 
             Container.Bind<AiStrategyProvider>().AsSingle().NonLazy();
+
+
+            foreach (var (type, prefabs) in _enemiesContainerSo.EnemyPrefabs)
+            {
+                foreach (var prefab in prefabs)
+                {
+                    if (!prefab)
+                    {
+                        continue;
+                    }
+
+                    Container.BindMemoryPool<EnemyController, EnemyPool>()
+                        .WithId(type)
+                        .WithInitialSize(10)
+                        .FromComponentInNewPrefab(prefab)
+                        .UnderTransformGroup(type.ToString()).NonLazy();
+                }
+            }
         }
     }
 }

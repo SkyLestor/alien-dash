@@ -6,7 +6,7 @@ using Zenject;
 
 namespace Scripts.Characters.Enemy
 {
-    public class EnemyController : MonoBehaviour, IDamageable, IDamaging
+    public class EnemyController : MonoBehaviour, IDamageable, IDamaging, IPoolable<Vector3, Quaternion, IMemoryPool>
     {
         private static readonly int FlashAmount = Shader.PropertyToID("_FlashAmount");
         private static readonly int AlphaAmount = Shader.PropertyToID("_AlphaAmount");
@@ -34,6 +34,9 @@ namespace Scripts.Characters.Enemy
         private MaterialPropertyBlock _block;
 
 
+        private IMemoryPool _pool;
+
+
         public EnemyConfigSo Config => _config;
 
         [Inject]
@@ -44,20 +47,7 @@ namespace Scripts.Characters.Enemy
 
         private void Awake()
         {
-            CurrentHeath = MaxHealth;
             _block = new MaterialPropertyBlock();
-        }
-
-        private void OnEnable()
-        {
-            _aiCoroutine = StartCoroutine(_aiStrategy.InitializeMovementStrategy(this));
-            EventBus.Subscribe<GamePhaseChangedEvent>(OnGamePhaseChanged);
-        }
-
-        private void OnDisable()
-        {
-            StopAiHandler();
-            EventBus.Unsubscribe<GamePhaseChangedEvent>(OnGamePhaseChanged);
         }
 
         public int CurrentHeath { get; private set; }
@@ -79,11 +69,34 @@ namespace Scripts.Characters.Enemy
 
         public int Damage => Config.Damage;
 
+        public void OnSpawned(Vector3 position, Quaternion rotation, IMemoryPool pool)
+        {
+            EventBus.Subscribe<GamePhaseChangedEvent>(OnGamePhaseChanged);
+
+
+            _pool = pool;
+
+            transform.SetPositionAndRotation(position, rotation);
+            CurrentHeath = MaxHealth;
+            _aiCoroutine = StartCoroutine(_aiStrategy.InitializeMovementStrategy(this));
+
+            SetFlashAmount(0f);
+            SetAlphaAmount();
+        }
+
+        public void OnDespawned()
+        {
+            EventBus.Unsubscribe<GamePhaseChangedEvent>(OnGamePhaseChanged);
+            StopAiHandler();
+            _animationSequence?.Kill();
+            _pool = null;
+        }
+
         private void OnGamePhaseChanged(GamePhaseChangedEvent eventData)
         {
             if (eventData.CurrentPhase is GamePhase.Finish or GamePhase.Upgrade)
             {
-                Destroy(gameObject);
+                _pool.Despawn(this);
             }
         }
 
@@ -128,7 +141,7 @@ namespace Scripts.Characters.Enemy
                     .SetEase(Ease.InOutSine))
                 .Join(DOVirtual.Float(1f, 0f, _damageAnimationDuration, SetAlphaAmount)
                     .SetEase(Ease.InOutSine))
-                .OnComplete(() => Destroy(gameObject));
+                .OnComplete(() => _pool.Despawn(this));
         }
 
         private void SetFlashAmount(float flashValue)
@@ -143,6 +156,21 @@ namespace Scripts.Characters.Enemy
             _spriteRenderer.GetPropertyBlock(_block);
             _block.SetFloat(AlphaAmount, alphaValue);
             _spriteRenderer.SetPropertyBlock(_block);
+        }
+    }
+
+    public class EnemyPool : MonoMemoryPool<Vector3, Quaternion, IMemoryPool, EnemyController>
+    {
+        protected override void Reinitialize(Vector3 p1, Quaternion p2, IMemoryPool p3, EnemyController item)
+        {
+            item.OnSpawned(p1, p2, p3);
+            base.Reinitialize(p1, p2, p3, item);
+        }
+
+        protected override void OnDespawned(EnemyController item)
+        {
+            item.OnDespawned();
+            base.OnDespawned(item);
         }
     }
 }
