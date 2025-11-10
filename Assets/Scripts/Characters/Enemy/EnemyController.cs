@@ -50,19 +50,6 @@ namespace Scripts.Characters.Enemy
             _block = new MaterialPropertyBlock();
         }
 
-        private void OnEnable()
-        {
-            _aiCoroutine = StartCoroutine(_aiStrategy.InitializeMovementStrategy(this));
-            EventBus.Subscribe<GamePhaseChangedEvent>(OnGamePhaseChanged);
-        }
-
-        private void OnDisable()
-        {
-            StopAiHandler();
-            EventBus.Unsubscribe<GamePhaseChangedEvent>(OnGamePhaseChanged);
-        }
-
-
         public int CurrentHeath { get; private set; }
 
         public int MaxHealth => Config.MaxHealth;
@@ -84,19 +71,22 @@ namespace Scripts.Characters.Enemy
 
         public void OnSpawned(Vector3 position, Quaternion rotation, IMemoryPool pool)
         {
+            EventBus.Subscribe<GamePhaseChangedEvent>(OnGamePhaseChanged);
+
+
             _pool = pool;
 
             transform.SetPositionAndRotation(position, rotation);
             CurrentHeath = MaxHealth;
+            _aiCoroutine = StartCoroutine(_aiStrategy.InitializeMovementStrategy(this));
 
             SetFlashAmount(0f);
             SetAlphaAmount();
-
-            _aiCoroutine = StartCoroutine(_aiStrategy.InitializeMovementStrategy(this));
         }
 
         public void OnDespawned()
         {
+            EventBus.Unsubscribe<GamePhaseChangedEvent>(OnGamePhaseChanged);
             StopAiHandler();
             _animationSequence?.Kill();
             _pool = null;
@@ -169,7 +159,7 @@ namespace Scripts.Characters.Enemy
         }
     }
 
-    public class EnemyPool : MemoryPool<Vector3, Quaternion, IMemoryPool, EnemyController>
+    public class EnemyPool : MonoMemoryPool<Vector3, Quaternion, IMemoryPool, EnemyController>
     {
         protected override void Reinitialize(Vector3 p1, Quaternion p2, IMemoryPool p3, EnemyController item)
         {
