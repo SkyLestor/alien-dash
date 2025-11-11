@@ -10,9 +10,9 @@ namespace Scripts.Characters.Player
     {
         [SerializeField] private Animator _animator;
 
-        private MovementController _movementController;
-
         private PlayerRegistry _playerRegistry;
+
+        public MovementController MovementController { get; private set; }
         public PlayerStats Stats { get; private set; }
 
         public IAnimationsController AnimationsController { get; private set; }
@@ -27,7 +27,7 @@ namespace Scripts.Characters.Player
         {
             Stats = new PlayerStats(100, 10, 3, 1.2f);
             AnimationsController = new PlayerAnimationsController(_animator);
-            _movementController = GetComponent<MovementController>();
+            MovementController = GetComponent<MovementController>();
         }
 
         private void OnEnable()
@@ -47,7 +47,7 @@ namespace Scripts.Characters.Player
                 return;
             }
 
-            if (_movementController.CurrentState == _movementController.DashingState)
+            if (MovementController.CurrentState == MovementController.DashingState)
             {
                 enemy.TakeDamage(Stats.Damage);
             }
