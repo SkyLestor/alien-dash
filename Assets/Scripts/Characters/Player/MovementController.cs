@@ -10,16 +10,15 @@ namespace Scripts.Characters.Player
     {
         [SerializeField] private TrailRenderer _trailRenderer;
 
-
-        // Dash Recovery fields
-        private int _currentDashCharges;
+        // Dash Recovery fields and properties
         private Coroutine _dashRecoveryCoroutine;
-        private float _dashRecoveryProgress;
-        public PlayerController Controller { get; private set; }
+        public int CurrentDashCharges { get; private set; }
+        public float DashRecoveryProgress { get; private set; }
 
-        public PlayerMovementState CurrentState { get; private set; }
 
         // properties for states to use
+        public PlayerController Controller { get; private set; }
+        public PlayerMovementState CurrentState { get; private set; }
         public Vector2 MoveDirection { get; private set; }
         public float Speed => 20f;
         public float InitialDashSpeed => 50f;
@@ -42,7 +41,7 @@ namespace Scripts.Characters.Player
 
         private void Start()
         {
-            _currentDashCharges = Controller.Stats.DashCharges;
+            CurrentDashCharges = Controller.Stats.DashCharges;
         }
 
         private void Update()
@@ -62,27 +61,27 @@ namespace Scripts.Characters.Player
 
         public void OnDash(InputAction.CallbackContext context)
         {
-            if (!context.performed || _currentDashCharges <= 0)
+            if (!context.performed || CurrentDashCharges <= 0)
             {
                 return;
             }
 
-            _currentDashCharges--;
+            CurrentDashCharges--;
             CurrentState?.OnDash();
             _dashRecoveryCoroutine ??= StartCoroutine(DashChargeRecovery());
         }
 
         private IEnumerator DashChargeRecovery()
         {
-            while (_dashRecoveryProgress < Controller.Stats.DashesCooldown)
+            while (DashRecoveryProgress < Controller.Stats.DashesCooldown)
             {
-                _dashRecoveryProgress += Time.deltaTime;
+                DashRecoveryProgress += Time.deltaTime;
                 yield return null;
             }
 
-            _currentDashCharges++;
-            _dashRecoveryProgress = 0;
-            if (_currentDashCharges < Controller.Stats.DashCharges)
+            CurrentDashCharges++;
+            DashRecoveryProgress = 0;
+            if (CurrentDashCharges < Controller.Stats.DashCharges)
             {
                 _dashRecoveryCoroutine = StartCoroutine(DashChargeRecovery());
             }
