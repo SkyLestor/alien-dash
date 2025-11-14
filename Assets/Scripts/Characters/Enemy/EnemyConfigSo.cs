@@ -8,6 +8,7 @@ namespace Scripts.Characters.Enemy
         [SerializeField] private int _maxHealth;
         [SerializeField] private float _maxSpeed;
         [SerializeField] private int _damage;
+        [SerializeField] private int _experienceDropped;
 
 
         public int MaxHealth => _maxHealth;
@@ -15,5 +16,6 @@ namespace Scripts.Characters.Enemy
         public float MaxSpeed => _maxSpeed;
 
         public int Damage => _damage;
+        public int ExperienceDropped => _experienceDropped;
     }
 }
