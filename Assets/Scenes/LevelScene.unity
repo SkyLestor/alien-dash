@@ -375,6 +375,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerPrefab: {fileID: 1315750534603908100, guid: 2fb9c2a33bd455343a6457a0cb69ab04, type: 3}
+  _enemyDropPrefab: {fileID: 8415595467006379751, guid: cffc1aa12756d12469b7e0f550bdddf0, type: 3}
   _enemiesContainerSo: {fileID: 11400000, guid: 62112cf4039994142bbca96e2a414655, type: 2}
 --- !u!1 &467284985
 GameObject:

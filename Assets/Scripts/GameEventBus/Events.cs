@@ -1,3 +1,4 @@
+using Scripts.Characters.Enemy;
 using Scripts.Characters.Player;
 using Scripts.RoundManagement;
 
@@ -16,5 +17,10 @@ namespace Scripts.GameEventBus
     public class ActivePlayersAmountChangedEvent
     {
         public int CurrentActivePlayersAmount;
+    }
+
+    public class EnemyDiedEvent
+    {
+        public EnemyController Enemy;
     }
 }

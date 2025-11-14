@@ -141,7 +141,11 @@ namespace Scripts.Characters.Enemy
                     .SetEase(Ease.InOutSine))
                 .Join(DOVirtual.Float(1f, 0f, _damageAnimationDuration, SetAlphaAmount)
                     .SetEase(Ease.InOutSine))
-                .OnComplete(() => _pool.Despawn(this));
+                .OnComplete(() =>
+                {
+                    EventBus.Raise(new EnemyDiedEvent { Enemy = this });
+                    _pool.Despawn(this);
+                });
         }
 
         private void SetFlashAmount(float flashValue)
