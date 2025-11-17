@@ -1,5 +1,6 @@
 using Scripts.Characters.Enemy;
 using Scripts.Characters.Enemy.AiStrategies;
+using Scripts.Characters.Enemy.EnemyDrops;
 using Scripts.Characters.Player;
 using Scripts.RoundManagement;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace Scripts.Installers
     public class LevelSceneInstaller : MonoInstaller
     {
         [SerializeField] private GameObject _playerPrefab;
+        [SerializeField] private EnemyDrop _enemyDropPrefab;
         [SerializeField] private EnemiesContainerSo _enemiesContainerSo;
 
         public override void InstallBindings()
@@ -42,6 +44,12 @@ namespace Scripts.Installers
                         .UnderTransformGroup(type.ToString()).NonLazy();
                 }
             }
+
+            Container.BindMemoryPool<EnemyDrop, EnemyDropsPool>()
+                .WithInitialSize(50)
+                .FromComponentInNewPrefab(_enemyDropPrefab)
+                .UnderTransformGroup("EnemyDrops").NonLazy();
+            Container.BindInterfacesTo<EnemyDropsProvider>().AsSingle().NonLazy();
         }
     }
 }

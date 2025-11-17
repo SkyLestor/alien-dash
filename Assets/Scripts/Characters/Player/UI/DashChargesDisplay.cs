@@ -9,16 +9,16 @@ namespace Scripts.Characters.Player.UI
     {
         [SerializeField] private Image _chargeImagePrefab;
 
-        private PlayerController _playerController;
-
         private readonly List<Image> _charges = new();
+
+        private PlayerController _playerController;
 
         [Inject]
         public void Construct(PlayerController playerController)
         {
             _playerController = playerController;
         }
-        
+
         private void Update()
         {
             if (!_playerController || _playerController.MovementController.DashRecoveryProgress == 0)
@@ -30,7 +30,7 @@ namespace Scripts.Characters.Player.UI
             var fullCharges = _playerController.MovementController.CurrentDashCharges;
 
             var recoveryProgress =
-                _playerController.MovementController.DashRecoveryProgress / _playerController.Stats.DashesCooldown;
+                _playerController.MovementController.DashRecoveryProgress / _playerController.Data.DashesCooldown;
 
             for (var i = 0; i < maxCharges; i++)
             {
@@ -51,7 +51,7 @@ namespace Scripts.Characters.Player.UI
 
         private void OnEnable()
         {
-            var maxCharges = _playerController.Stats.DashCharges;
+            var maxCharges = _playerController.Data.DashCharges;
 
             for (var i = 0; i < maxCharges; i++)
             {

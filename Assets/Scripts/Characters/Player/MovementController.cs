@@ -41,7 +41,7 @@ namespace Scripts.Characters.Player
 
         private void Start()
         {
-            CurrentDashCharges = Controller.Stats.DashCharges;
+            CurrentDashCharges = Controller.Data.DashCharges;
         }
 
         private void Update()
@@ -73,7 +73,7 @@ namespace Scripts.Characters.Player
 
         private IEnumerator DashChargeRecovery()
         {
-            while (DashRecoveryProgress < Controller.Stats.DashesCooldown)
+            while (DashRecoveryProgress < Controller.Data.DashCharges)
             {
                 DashRecoveryProgress += Time.deltaTime;
                 yield return null;
@@ -81,7 +81,7 @@ namespace Scripts.Characters.Player
 
             CurrentDashCharges++;
             DashRecoveryProgress = 0;
-            if (CurrentDashCharges < Controller.Stats.DashCharges)
+            if (CurrentDashCharges < Controller.Data.DashCharges)
             {
                 _dashRecoveryCoroutine = StartCoroutine(DashChargeRecovery());
             }

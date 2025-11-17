@@ -13,19 +13,19 @@ namespace Scripts.Characters.Player
         private PlayerRegistry _playerRegistry;
 
         public MovementController MovementController { get; private set; }
-        public PlayerStats Stats { get; private set; }
+        public PlayerData Data { get; private set; }
 
         public IAnimationsController AnimationsController { get; private set; }
 
         [Inject]
-        public void Construct(PlayerRegistry playerRegistry)
+        public void Construct(PlayerRegistry playerRegistry, PlayerConfigSo config)
         {
             _playerRegistry = playerRegistry;
+            Data = new PlayerData(config.PlayerData);
         }
 
         private void Awake()
         {
-            Stats = new PlayerStats(100, 10, 3, 1.2f);
             AnimationsController = new PlayerAnimationsController(_animator);
             MovementController = GetComponent<MovementController>();
         }
@@ -49,7 +49,7 @@ namespace Scripts.Characters.Player
 
             if (MovementController.CurrentState == MovementController.DashingState)
             {
-                enemy.TakeDamage(Stats.Damage);
+                enemy.TakeDamage(Data.Damage);
             }
             else
             {
@@ -58,37 +58,18 @@ namespace Scripts.Characters.Player
         }
 
 
-        public int CurrentHeath => Stats.CurrentHealth;
+        public int CurrentHeath => Data.CurrentHealth;
 
-        public int MaxHealth => Stats.MaxHealth;
+        public int MaxHealth => Data.MaxHealth;
 
         public void TakeDamage(int damage)
         {
-            Stats.CurrentHealth = Mathf.Clamp(CurrentHeath - damage, 0, MaxHealth);
+            Data.TakeDamage(damage);
             AnimationsController.PlayDamagedAnimation();
             EventBus.Raise(new PlayerDamagedEvent { Player = this });
-            if (Stats.CurrentHealth == 0)
+            if (Data.CurrentHealth == 0)
             {
                 Destroy(gameObject);
-            }
-        }
-
-
-        public class PlayerStats
-        {
-            public int CurrentHealth;
-            public int Damage;
-            public int DashCharges;
-            public float DashesCooldown;
-            public int MaxHealth;
-
-            public PlayerStats(int initialHealth, int initialDamage, int dashCharges, float dashesCooldown)
-            {
-                MaxHealth = initialHealth;
-                CurrentHealth = initialHealth;
-                Damage = initialDamage;
-                DashCharges = dashCharges;
-                DashesCooldown = dashesCooldown;
             }
         }
     }
