@@ -101,7 +101,7 @@ namespace Scripts.Characters.Enemy.EnemyDrops
             {
                 return;
             }
-
+            player.Data.AddExperience(_value);
             _pool.Despawn(this);
         }
     }

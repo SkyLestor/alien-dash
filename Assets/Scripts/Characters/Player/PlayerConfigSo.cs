@@ -20,7 +20,7 @@ namespace Scripts.Characters.Player
         [SerializeField] private float _dashesCooldown;
         [SerializeField] private int _levelUpCoefficient;
 
-        private int _experienceGathered;
+        public int ExperienceGathered { get; private set; }
 
         public PlayerData()
         {
@@ -49,7 +49,7 @@ namespace Scripts.Characters.Player
         public float DashesCooldown => _dashesCooldown;
         public void AddExperience(int experience)
         {
-            _experienceGathered += experience;
+            ExperienceGathered += experience;
             CheckAbilityToLevelUp();
         }
 
@@ -58,12 +58,12 @@ namespace Scripts.Characters.Player
             CurrentHealth = _maxHealth;
             Level = 1;
             LevelsPending = 0;
-            _experienceGathered = 0;
+            ExperienceGathered = 0;
         }
 
         private void CheckAbilityToLevelUp()
         {
-            if (_experienceGathered < ExperienceToNextLevel)
+            if (ExperienceGathered < ExperienceToNextLevel)
             {
                 return;
             }
@@ -74,7 +74,7 @@ namespace Scripts.Characters.Player
 
         private void LevelUp()
         {
-            _experienceGathered = Mathf.Clamp(_experienceGathered - ExperienceToNextLevel, 0, _experienceGathered);
+            ExperienceGathered = Mathf.Clamp(ExperienceGathered - ExperienceToNextLevel, 0, ExperienceGathered);
             Level++;
         }
 
